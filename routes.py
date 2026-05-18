@@ -1,4 +1,5 @@
 import os
+import socket
 import smtplib
 import mimetypes
 from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
@@ -11,7 +12,12 @@ from email.message import EmailMessage
 routes = Blueprint('routes', __name__)
 
 def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, subject, body, cc="", bcc="", file_paths=[]):
+    # Save original socket getaddrinfo to bypass IPv6 unreachability bugs on cloud hosts (Render)
+    orig_getaddrinfo = socket.getaddrinfo
     try:
+        # Temporarily force IPv4 (AF_INET) resolution
+        socket.getaddrinfo = lambda host, port, family=0, *args, **kwargs: orig_getaddrinfo(host, port, socket.AF_INET, *args, **kwargs)
+
         msg = EmailMessage()
         msg['Subject'] = subject
         msg['From'] = sender_email
@@ -46,6 +52,9 @@ def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, su
         return True, "Success"
     except Exception as e:
         return False, str(e)
+    finally:
+        # Restore original getaddrinfo
+        socket.getaddrinfo = orig_getaddrinfo
 
 @routes.route('/dashboard')
 @login_required

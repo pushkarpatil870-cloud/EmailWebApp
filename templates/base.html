@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailFlow - Professional Communication Portal</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Core Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Quill Snow Rich Text Styles -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <!-- Clean Minimalist custom CSS -->
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar - Corporate Minimal Design -->
+        <div class="sidebar-wrapper" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center py-4 fs-5 fw-bold">
+                <i class="fas fa-envelope-open-text me-2"></i>MailFlow
+            </div>
+            <div class="list-group list-group-flush px-2">
+                <a href="{{ url_for('routes.dashboard') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                <a href="{{ url_for('routes.compose') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-pen-fancy me-2"></i>Compose Email</a>
+                <a href="{{ url_for('routes.history') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-inbox me-2"></i>Outbox & Drafts</a>
+                <a href="{{ url_for('routes.settings') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-sliders-h me-2"></i>SMTP Credentials</a>
+                <a href="{{ url_for('auth.logout') }}" class="list-group-item sidebar-link mt-5 text-danger"><i class="fas fa-power-off me-2"></i>Logout</a>
+            </div>
+        </div>
+        
+        <!-- Page Content Area -->
+        <div id="page-content-wrapper" class="w-100">
+            <!-- Navbar - Modern Custom Navbar Class (Responsive to Theme) -->
+            <nav class="navbar navbar-expand-lg py-3 px-4 navbar-custom">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary btn-sm me-3" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                    <h5 class="mb-0 fw-bold header-title">MailFlow Gateway</h5>
+                </div>
+                
+                <div class="ms-auto d-flex align-items-center">
+                    <!-- Dynamic Theme Toggle -->
+                    <button class="btn btn-sm btn-outline-secondary me-3" id="themeToggle">
+                        <i class="fas fa-moon me-1"></i>Theme
+                    </button>
+                    
+                    <!-- Professional User Account / Profile Dropdown -->
+                    <div class="dropdown">
+                        <a class="d-flex align-items-center text-decoration-none dropdown-toggle profile-toggle" href="#" role="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="profile-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2" style="width: 35px; height: 35px;">
+                                {{ current_user.username[0].upper() }}
+                            </div>
+                            <span class="fw-semibold profile-username">{{ current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border profile-dropdown" aria-labelledby="profileDropdown">
+                            <li class="dropdown-header text-muted">Account Controls</li>
+                            <li><a class="dropdown-item" href="{{ url_for('routes.settings') }}"><i class="fas fa-cog me-2"></i>SMTP Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-power-off me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="container-fluid px-4 py-4">
+                <!-- Toast Notifications container -->
+                <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="toast align-items-center text-bg-{{ category }} border-0 toast-custom show" role="alert">
+                                  <div class="d-flex">
+                                    <div class="toast-body">
+                                      <i class="fas fa-info-circle me-2"></i>{{ message }}
+                                    </div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                  </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <!-- Authentication Wrapper -->
+        <div class="container d-flex justify-content-center align-items-center vh-100">
+            <div class="toast-container position-fixed top-0 end-0 p-3">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="toast align-items-center text-bg-{{ category }} border-0 show" role="alert">
+                                <div class="d-flex">
+                                <div class="toast-body">{{ message }}</div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% block auth_content %}{% endblock %}
+        </div>
+    {% endif %}
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Quill Editor Script -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- Custom logic -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

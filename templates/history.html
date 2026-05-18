@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card-premium p-4 shadow-sm">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <h4 class="mb-0 fw-bold"><i class="fas fa-history text-primary me-2"></i>Communication Log</h4>
+        </div>
+        <div class="col-md-6">
+            <input type="text" class="form-control form-control-custom" id="searchInput" placeholder="Search by recipient or subject...">
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-hover table-custom align-middle" id="historyTable">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Recipient</th>
+                    <th>Subject</th>
+                    <th>Timestamp</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email in emails %}
+                <tr>
+                    <td>
+                        {% if email.status == 'Sent' %}
+                        <i class="fas fa-paper-plane text-primary"></i>
+                        {% else %}
+                        <i class="fas fa-file-alt text-warning"></i>
+                        {% endif %}
+                    </td>
+                    <td class="fw-semibold">{{ email.recipient }}</td>
+                    <td>{{ email.subject or '(No Subject)' }}</td>
+                    <td class="small text-muted">{{ email.date_sent.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if email.status == 'Sent' %}
+                        <span class="badge badge-custom-sent px-3 py-2 fw-semibold">Sent</span>
+                        {% else %}
+                        <span class="badge badge-custom-draft px-3 py-2 fw-semibold">Draft</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                        <i class="fas fa-folder-open fs-2 mb-3 d-block text-muted"></i>
+                        <p class="mb-0">No active dispatch files recorded.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

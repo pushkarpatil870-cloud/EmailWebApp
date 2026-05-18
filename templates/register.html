@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block auth_content %}
+<div class="card-premium p-5 shadow" style="width: 420px; border-radius: 12px;">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-envelope-open-text text-primary me-2"></i>MailFlow</h2>
+        <p class="text-muted small">Create your account to dispatch emails securely.</p>
+    </div>
+    
+    <h5 class="text-center mb-4 fw-semibold">Create Account</h5>
+    
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        <div class="mb-4">
+            <label class="form-label form-label-custom">Username</label>
+            <input type="text" class="form-control form-control-custom" name="username" required placeholder="Choose a username">
+        </div>
+        <div class="mb-4">
+            <label class="form-label form-label-custom">Password</label>
+            <input type="password" class="form-control form-control-custom" name="password" required placeholder="Create password">
+        </div>
+        <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-semibold">Register Account</button>
+    </form>
+    
+    <div class="mt-4 text-center">
+        <small class="text-muted">Already have an account? <a href="{{ url_for('auth.login') }}" class="text-primary text-decoration-none fw-semibold">Login here</a></small>
+    </div>
+</div>
+{% endblock %}

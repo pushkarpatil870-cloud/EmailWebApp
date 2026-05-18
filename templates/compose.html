@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card-premium p-4 shadow-sm">
+            <h4 class="mb-4 fw-bold"><i class="fas fa-paper-plane text-primary me-2"></i>Compose Message</h4>
+            
+            <form method="POST" action="{{ url_for('routes.compose') }}" enctype="multipart/form-data" id="composeForm">
+                
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label class="form-label form-label-custom">Recipient (To) <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control form-control-custom" name="receiver" required placeholder="recipient@example.com">
+                    </div>
+                    <div class="col-md-3 mb-3 mb-md-0">
+                        <label class="form-label form-label-custom">CC</label>
+                        <input type="email" class="form-control form-control-custom" name="cc" placeholder="cc@example.com">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label form-label-custom">BCC</label>
+                        <input type="email" class="form-control form-control-custom" name="bcc" placeholder="bcc@example.com">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label form-label-custom">Subject Line</label>
+                    <input type="text" class="form-control form-control-custom" name="subject" placeholder="Enter email subject">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label form-label-custom">Message Body</label>
+                    <textarea name="body" id="body-hidden" style="display:none;"></textarea>
+                    <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+                        <div id="editor" class="glass-editor" style="height: 280px;"></div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-2 small text-muted">
+                        <span id="char-counter" class="fw-semibold">0</span> characters
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label form-label-custom">Attachments</label>
+                    <div class="upload-dropzone" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt fs-3 mb-2"></i>
+                        <p class="mb-0 fw-semibold">Drag and drop attachments here, or click to browse</p>
+                        <input type="file" id="attachments" name="attachments" multiple class="d-none">
+                    </div>
+                    <div id="file-list" class="mt-2 d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <button type="submit" name="action" value="draft" class="btn btn-outline-custom" id="draftBtn">
+                        <i class="fas fa-save me-2"></i>Save Draft
+                    </button>
+                    <button type="submit" name="action" value="send" class="btn btn-primary-custom px-5" id="sendBtn">
+                        <span class="btn-text"><i class="fas fa-paper-plane me-2"></i>Send Message</span>
+                        <span class="spinner-border spinner-border-sm d-none ms-2" id="loadingSpinner" role="status"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

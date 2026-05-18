@@ -1,0 +1,450 @@
+/* 
+================================================================
+   MAILFLOW CUSTOM STYLING SYSTEM
+   SaaS Aesthetic: Modern minimal borders, high contrast
+================================================================
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Centralized Theme Management via CSS Variables */
+:root {
+    /* LIGHT MODE PALETTE */
+    --bg-primary: #f8fafc;
+    --bg-sidebar: #ffffff;
+    --bg-navbar: #ffffff;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: rgba(37, 99, 235, 0.08);
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+    --input-focus-ring: rgba(37, 99, 235, 0.1);
+}
+
+[data-bs-theme="dark"] {
+    /* PREMIUM SaaS DARK PALETTE */
+    --bg-primary: #121212;
+    --bg-sidebar: #1e1e1e;
+    --bg-navbar: #1e1e1e;
+    --bg-card: #242424;
+    --border-color: #333333;
+    --text-primary: #F5F5F5;
+    --text-muted: #B0B0B0;
+    --primary-color: #4F8CFF;
+    --primary-hover: #73a4ff;
+    --primary-light: rgba(79, 140, 255, 0.15);
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --input-focus-ring: rgba(79, 140, 255, 0.15);
+}
+
+/* Base resets & theme mapping */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    transition: background-color 0.25s ease, color 0.25s ease;
+    overflow-x: hidden;
+}
+
+/* Base Headings & typography readability fixes */
+h1, h2, h3, h4, h5, h6, .header-title {
+    color: var(--text-primary) !important;
+    font-weight: 700;
+}
+
+/* Link visibility fixes */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+a:hover {
+    color: var(--primary-hover);
+}
+
+/* --- CORPORATE MINIMALIST SIDEBAR --- */
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 260px;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-color);
+    transition: margin 0.25s ease-out, background-color 0.25s ease, border-color 0.25s ease;
+    z-index: 1000;
+}
+
+.sidebar-heading {
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-primary) !important;
+    transition: border-color 0.25s ease;
+}
+
+.list-group-item.sidebar-link {
+    background-color: transparent !important;
+    color: var(--text-muted) !important;
+    border: none;
+    padding: 0.85rem 1.5rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.15s ease;
+    border-radius: 6px;
+}
+
+.list-group-item.sidebar-link i {
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.list-group-item.sidebar-link:hover {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    transform: translateX(4px);
+}
+
+.list-group-item.sidebar-link:hover i {
+    color: var(--primary-color) !important;
+}
+
+.list-group-item.sidebar-link.active {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    font-weight: 600;
+}
+
+.list-group-item.sidebar-link.active i {
+    color: var(--primary-color) !important;
+}
+
+/* --- THEME-BASED NAVBAR --- */
+.navbar-custom {
+    background-color: var(--bg-navbar);
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.navbar-custom .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* --- USER PROFILE DROPDOWN FIXES --- */
+.profile-toggle {
+    color: var(--text-primary) !important;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.15s ease;
+}
+
+.profile-toggle:hover {
+    background-color: var(--primary-light) !important;
+}
+
+.profile-avatar {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+}
+
+.profile-dropdown {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--card-shadow) !important;
+    color: var(--text-primary) !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.profile-dropdown .dropdown-header {
+    color: var(--text-muted) !important;
+}
+
+.profile-dropdown .dropdown-item {
+    color: var(--text-primary) !important;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    padding: 0.5rem 1.25rem;
+}
+
+.profile-dropdown .dropdown-item i {
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.profile-dropdown .dropdown-item:hover {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+}
+
+.profile-dropdown .dropdown-item:hover i {
+    color: var(--primary-color);
+}
+
+.profile-dropdown .dropdown-divider {
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- SAAS CARD SYSTEM --- */
+.card-premium {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-premium-header {
+    border-bottom: 1px solid var(--border-color);
+    background-color: transparent;
+    padding: 1.25rem 1.5rem;
+}
+
+.card-premium .text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Stat Icon Circles */
+.stat-icon {
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* --- FORMS & INPUT FIELDS --- */
+.form-label-custom {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted) !important;
+    margin-bottom: 0.4rem;
+    transition: color 0.25s ease;
+}
+
+.form-control-custom {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.25s ease;
+}
+
+.form-control-custom:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px var(--input-focus-ring) !important;
+}
+
+.form-control-custom::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.6;
+}
+
+/* Input group icons */
+.input-group-text.glass-input {
+    background-color: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-muted) !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+/* Password Toggle Icon Adjustments */
+#togglePassword {
+    border-color: var(--border-color) !important;
+    background-color: var(--bg-card) !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+#togglePassword:hover {
+    background-color: var(--bg-primary) !important;
+}
+
+/* --- CUSTOM SLEEK BUTTONS --- */
+.btn-primary-custom {
+    background-color: var(--primary-color) !important;
+    border: 1px solid var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--input-focus-ring);
+}
+
+.btn-outline-custom {
+    background-color: transparent !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+
+.btn-outline-custom:hover {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* --- MINIMALIST OUTBOX TABLE SYSTEM --- */
+.table-custom {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-primary);
+    --bs-table-border-color: var(--border-color);
+}
+
+.table-custom th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border-color) !important;
+    padding: 1rem 0.75rem;
+    transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.table-custom td {
+    padding: 1rem 0.75rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary) !important;
+    transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.table-custom tbody tr:hover td {
+    background-color: var(--primary-light) !important;
+}
+
+/* --- DRAG & DROP ATTACHMENT AREA --- */
+.upload-dropzone {
+    border: 2px dashed var(--border-color) !important;
+    background-color: var(--bg-primary);
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--primary-color) !important;
+    background-color: var(--primary-light);
+}
+
+.upload-dropzone i {
+    color: var(--text-muted) !important;
+    transition: color 0.25s ease;
+}
+.upload-dropzone:hover i {
+    color: var(--primary-color) !important;
+}
+
+.upload-dropzone p {
+    color: var(--text-primary) !important;
+}
+
+/* --- QUILL RICH EDITOR FIXES --- */
+.ql-toolbar.ql-snow {
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--bg-primary) !important;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.ql-toolbar.ql-snow .ql-stroke {
+    stroke: var(--text-primary) !important;
+}
+.ql-toolbar.ql-snow .ql-fill {
+    fill: var(--text-primary) !important;
+}
+.ql-toolbar.ql-snow .ql-picker {
+    color: var(--text-primary) !important;
+}
+
+.ql-container.ql-snow {
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--bg-card) !important;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.ql-editor {
+    color: var(--text-primary) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 0.95rem;
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--text-muted) !important;
+    opacity: 0.6;
+    font-style: normal;
+}
+
+/* --- SCROLLBAR STYLE REDESIGN --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* --- TOAST NOTIFICATIONS & ALERTS --- */
+.toast-custom {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--card-shadow) !important;
+    color: var(--text-primary) !important;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.toast-custom .btn-close {
+    filter: invert(var(--bs-theme-invert, 0));
+}
+
+[data-bs-theme="dark"] .toast-custom .btn-close {
+    filter: invert(1);
+}
+
+/* --- FOOTERS --- */
+footer {
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted) !important;
+    font-size: 0.85rem;
+    transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+/* --- COMPONENT STYLES --- */
+.badge-custom-sent {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: #10b981 !important;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge-custom-draft {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+    color: #f59e0b !important;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}

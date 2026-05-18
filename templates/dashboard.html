@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row g-4 mb-4">
+    <!-- Stat 1 -->
+    <div class="col-md-6 col-xl-4">
+        <div class="card-premium p-4 shadow-sm">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="form-label-custom mb-1">Total Dispatched</h6>
+                    <h2 class="mb-0 fw-bold">{{ total_sent }}</h2>
+                </div>
+                <div class="text-primary fs-3"><i class="fas fa-paper-plane text-primary"></i></div>
+            </div>
+        </div>
+    </div>
+    <!-- Stat 2 -->
+    <div class="col-md-6 col-xl-4">
+        <div class="card-premium p-4 shadow-sm">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="form-label-custom mb-1">Local Drafts</h6>
+                    <h2 class="mb-0 fw-bold">{{ drafts }}</h2>
+                </div>
+                <div class="text-warning fs-3"><i class="fas fa-file-alt text-warning"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card-premium p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0 fw-semibold"><i class="fas fa-list text-primary me-2"></i>Outbox Activity Logs</h5>
+                <a href="{{ url_for('routes.history') }}" class="btn btn-sm btn-outline-custom">View Outbox</a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover table-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Subject</th>
+                            <th>Timestamp</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for email in sent_emails %}
+                        <tr>
+                            <td class="fw-semibold">{{ email.recipient }}</td>
+                            <td>{{ email.subject or '(No Subject)' }}</td>
+                            <td class="small text-muted">{{ email.date_sent.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="badge badge-custom-sent px-3 py-2 fw-semibold">
+                                    <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>{{ email.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-5">
+                                <i class="fas fa-inbox fs-2 mb-3 d-block text-muted"></i>
+                                <p class="mb-0">No active outbox entries found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

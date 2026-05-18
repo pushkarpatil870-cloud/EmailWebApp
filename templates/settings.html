@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-premium p-4 shadow-sm">
+            <h4 class="mb-4 fw-bold"><i class="fas fa-server text-primary me-2"></i>SMTP Gateway Credentials</h4>
+            
+            <form method="POST" action="{{ url_for('routes.settings') }}">
+                <div class="mb-4">
+                    <label class="form-label form-label-custom">Email Gateway Address</label>
+                    <input type="email" class="form-control form-control-custom" name="email_address" value="{{ setting.email_address or '' }}" required placeholder="your.email@gmail.com">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label form-label-custom">SMTP Gateway Password</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control form-control-custom border-end-0" id="app_password" name="app_password" value="{{ setting.app_password or '' }}" required placeholder="Enter SMTP/App password">
+                        <button class="btn btn-outline-secondary border border-start-0" type="button" id="togglePassword" style="border-color: var(--border-color) !important;">
+                            <i class="fas fa-eye text-muted"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <label class="form-label form-label-custom">SMTP Server Address</label>
+                        <input type="text" class="form-control form-control-custom" name="smtp_server" value="{{ setting.smtp_server }}" required placeholder="smtp.gmail.com">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label form-label-custom">SMTP Server Port</label>
+                        <input type="number" class="form-control form-control-custom" name="smtp_port" value="{{ setting.smtp_port }}" required placeholder="465">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary-custom px-5">Save Configuration</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

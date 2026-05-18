@@ -28,3 +28,17 @@ class EmailHistory(db.Model):
     body = db.Column(db.Text)
     status = db.Column(db.String(50)) # 'Sent', 'Draft'
     date_sent = db.Column(db.DateTime, default=datetime.utcnow)
+
+class EmailDraft(db.Model):
+    __tablename__ = 'email_draft'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('app_user.id'))
+    recipient = db.Column(db.String(200))
+    cc = db.Column(db.String(200))
+    bcc = db.Column(db.String(200))
+    subject = db.Column(db.String(200))
+    body = db.Column(db.Text)
+    attachments = db.Column(db.Text) # JSON serialized list of file paths
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    status = db.Column(db.String(50), default='Draft')

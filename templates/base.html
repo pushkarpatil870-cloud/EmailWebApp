@@ -24,7 +24,8 @@
             <div class="list-group list-group-flush px-2">
                 <a href="{{ url_for('routes.dashboard') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
                 <a href="{{ url_for('routes.compose') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-pen-fancy me-2"></i>Compose Email</a>
-                <a href="{{ url_for('routes.history') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-inbox me-2"></i>Outbox & Drafts</a>
+                <a href="{{ url_for('routes.drafts') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-file-alt me-2"></i>Drafts Folder</a>
+                <a href="{{ url_for('routes.history') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-inbox me-2"></i>Sent Outbox</a>
                 <a href="{{ url_for('routes.settings') }}" class="list-group-item sidebar-link my-1"><i class="fas fa-sliders-h me-2"></i>SMTP Credentials</a>
                 <a href="{{ url_for('auth.logout') }}" class="list-group-item sidebar-link mt-5 text-danger"><i class="fas fa-power-off me-2"></i>Logout</a>
             </div>

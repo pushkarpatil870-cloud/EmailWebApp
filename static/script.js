@@ -186,3 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// --- 8. Reusable Global helper for Draft Attachment Removal ---
+window.removeAttachment = function(btn, checkboxId) {
+    const cb = document.getElementById(checkboxId);
+    if (cb) {
+        cb.checked = false; // Deselect attachment so the server deletes it
+    }
+    btn.parentElement.remove(); // Remove badge from display
+}

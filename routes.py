@@ -1,4 +1,5 @@
 import os
+import json
 import socket
 import smtplib
 import mimetypes
@@ -6,10 +7,15 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for,
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from extensions import db
-from models import SMTPSettings, EmailHistory
+from models import SMTPSettings, EmailHistory, EmailDraft
 from email.message import EmailMessage
 
 routes = Blueprint('routes', __name__)
+
+@routes.app_template_filter('filename_only')
+def filename_only(path):
+    return os.path.basename(path)
+
 
 def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, subject, body, cc="", bcc="", file_paths=[]):
     # Save original socket getaddrinfo to bypass IPv6 unreachability bugs on cloud hosts (Render)
@@ -62,7 +68,7 @@ def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, su
 @login_required
 def dashboard():
     sent_emails = EmailHistory.query.filter_by(user_id=current_user.id, status='Sent').order_by(EmailHistory.date_sent.desc()).limit(5).all()
-    drafts = EmailHistory.query.filter_by(user_id=current_user.id, status='Draft').count()
+    drafts = EmailDraft.query.filter_by(user_id=current_user.id).count()
     total_sent = EmailHistory.query.filter_by(user_id=current_user.id, status='Sent').count()
     return render_template('dashboard.html', sent_emails=sent_emails, drafts=drafts, total_sent=total_sent)
 
@@ -70,57 +76,205 @@ def dashboard():
 @login_required
 def compose():
     settings = SMTPSettings.query.filter_by(user_id=current_user.id).first()
+    
+    # GET Request: check if loading an existing draft
+    if request.method == 'GET':
+        draft_id = request.args.get('draft_id')
+        if draft_id:
+            draft = EmailDraft.query.filter_by(id=draft_id, user_id=current_user.id).first()
+            if draft:
+                draft_attachments = json.loads(draft.attachments) if draft.attachments else []
+                return render_template('compose.html', draft=draft, draft_attachments=draft_attachments)
+        return render_template('compose.html')
+        
+    # POST Request
     if request.method == 'POST':
         action = request.form.get('action') # 'send' or 'draft'
+        draft_id = request.form.get('draft_id')
         receiver = request.form.get('receiver')
         cc = request.form.get('cc')
         bcc = request.form.get('bcc')
         subject = request.form.get('subject')
         body = request.form.get('body')
         
-        # Handle file attachments
+        # Retrieve list of previously uploaded files that the user wants to keep
+        keep_attachments = request.form.getlist('keep_attachments')
+        
+        # Check if draft already exists
+        existing_draft = None
+        if draft_id:
+            existing_draft = EmailDraft.query.filter_by(id=draft_id, user_id=current_user.id).first()
+            
+            # Clean up old attachments that were removed by the user
+            if existing_draft:
+                old_attachments = json.loads(existing_draft.attachments) if existing_draft.attachments else []
+                for filepath in old_attachments:
+                    if filepath not in keep_attachments and os.path.exists(filepath):
+                        try:
+                            os.remove(filepath)
+                        except Exception:
+                            pass
+        
+        # Handle newly uploaded attachments
         files = request.files.getlist('attachments')
-        saved_files = []
         for file in files:
             if file and file.filename:
                 filename = secure_filename(file.filename)
+                # Avoid duplicate names by prefixing a unique tag if file already exists
                 filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                counter = 1
+                base, ext = os.path.splitext(filename)
+                while os.path.exists(filepath):
+                    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{base}_{counter}{ext}")
+                    counter += 1
+                
                 file.save(filepath)
-                saved_files.append(filepath)
+                keep_attachments.append(filepath)
 
+        # Action: SAVE DRAFT
         if action == 'draft':
-            email = EmailHistory(user_id=current_user.id, recipient=receiver, cc=cc, bcc=bcc, subject=subject, body=body, status='Draft')
-            db.session.add(email)
-            db.session.commit()
-            flash('Draft saved successfully!', 'info')
-            return redirect(url_for('routes.history'))
+            if existing_draft:
+                existing_draft.recipient = receiver
+                existing_draft.cc = cc
+                existing_draft.bcc = bcc
+                existing_draft.subject = subject
+                existing_draft.body = body
+                existing_draft.attachments = json.dumps(keep_attachments)
+                db.session.commit()
+                flash('Draft updated successfully!', 'success')
+            else:
+                new_draft = EmailDraft(
+                    user_id=current_user.id,
+                    recipient=receiver,
+                    cc=cc,
+                    bcc=bcc,
+                    subject=subject,
+                    body=body,
+                    attachments=json.dumps(keep_attachments)
+                )
+                db.session.add(new_draft)
+                db.session.commit()
+                flash('Draft saved successfully!', 'success')
+            return redirect(url_for('routes.drafts'))
 
+        # Action: SEND EMAIL
         if not settings or not settings.email_address or not settings.app_password:
             flash('Configure SMTP settings before sending email.', 'warning')
             return redirect(url_for('routes.settings'))
 
-        success, msg = send_email_func(settings.smtp_server, settings.smtp_port, settings.email_address, settings.app_password, receiver, subject, body, cc, bcc, saved_files)
+        success, msg = send_email_func(
+            settings.smtp_server,
+            settings.smtp_port,
+            settings.email_address,
+            settings.app_password,
+            receiver,
+            subject,
+            body,
+            cc,
+            bcc,
+            keep_attachments
+        )
         
-        # Clean up files
-        for path in saved_files:
-            if os.path.exists(path):
-                os.remove(path)
-
         if success:
+            # Add to Outbox Activity Log
             try:
                 email = EmailHistory(user_id=current_user.id, recipient=receiver, cc=cc, bcc=bcc, subject=subject, body=body, status='Sent')
                 db.session.add(email)
+                
+                # If sending an existing draft, delete it from drafts list
+                if existing_draft:
+                    db.session.delete(existing_draft)
+                
+                # Clean up attachment files from the server's uploads folder after successful send
+                for path in keep_attachments:
+                    if os.path.exists(path):
+                        try:
+                            os.remove(path)
+                        except Exception:
+                            pass
+                
                 db.session.commit()
                 flash('Email sent successfully!', 'success')
             except Exception as db_err:
                 db.session.rollback()
-                flash(f'Email sent successfully, but failed to log history: {str(db_err)}', 'warning', 'warning')
+                flash(f'Email sent, but failed to log history: {str(db_err)}', 'warning')
+            return redirect(url_for('routes.history'))
         else:
             flash(f'Failed to dispatch: {msg}', 'danger')
-            
-        return redirect(url_for('routes.compose'))
+            # If sending failed, redirect back to compose with draft parameters to prevent data loss
+            if existing_draft:
+                return redirect(url_for('routes.compose', draft_id=existing_draft.id))
+            return redirect(url_for('routes.compose'))
 
-    return render_template('compose.html')
+@routes.route('/drafts')
+@login_required
+def drafts():
+    draft_list = EmailDraft.query.filter_by(user_id=current_user.id).order_by(EmailDraft.updated_at.desc()).all()
+    # Format attachments count for each draft
+    for d in draft_list:
+        d.attach_count = len(json.loads(d.attachments)) if d.attachments else 0
+    return render_template('drafts.html', drafts=draft_list)
+
+@routes.route('/drafts/delete/<int:draft_id>', methods=['POST'])
+@login_required
+def delete_draft(draft_id):
+    draft = EmailDraft.query.filter_by(id=draft_id, user_id=current_user.id).first_or_404()
+    # Clean up attachment files from server
+    attachments = json.loads(draft.attachments) if draft.attachments else []
+    for path in attachments:
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+    
+    db.session.delete(draft)
+    db.session.commit()
+    flash('Draft deleted successfully!', 'success')
+    return redirect(url_for('routes.drafts'))
+
+@routes.route('/drafts/duplicate/<int:draft_id>')
+@login_required
+def duplicate_draft(draft_id):
+    draft = EmailDraft.query.filter_by(id=draft_id, user_id=current_user.id).first_or_404()
+    
+    # We duplicate the draft files under new unique names to prevent share collisions
+    old_attachments = json.loads(draft.attachments) if draft.attachments else []
+    new_attachments = []
+    for old_path in old_attachments:
+        if os.path.exists(old_path):
+            try:
+                base, ext = os.path.splitext(os.path.basename(old_path))
+                new_filename = f"{base}_copy{ext}"
+                new_path = os.path.join(current_app.config['UPLOAD_FOLDER'], new_filename)
+                counter = 1
+                while os.path.exists(new_path):
+                    new_path = os.path.join(current_app.config['UPLOAD_FOLDER'], f"{base}_copy_{counter}{ext}")
+                    counter += 1
+                
+                # Copy file contents
+                with open(old_path, 'rb') as f_src:
+                    content = f_src.read()
+                with open(new_path, 'wb') as f_dest:
+                    f_dest.write(content)
+                new_attachments.append(new_path)
+            except Exception:
+                pass
+                
+    new_draft = EmailDraft(
+        user_id=current_user.id,
+        recipient=draft.recipient,
+        cc=draft.cc,
+        bcc=draft.bcc,
+        subject=f"Copy of {draft.subject or ''}" if draft.subject else "Copy of Draft",
+        body=draft.body,
+        attachments=json.dumps(new_attachments)
+    )
+    db.session.add(new_draft)
+    db.session.commit()
+    flash('Draft duplicated successfully!', 'success')
+    return redirect(url_for('routes.drafts'))
+
 
 @routes.route('/history')
 @login_required

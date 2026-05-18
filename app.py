@@ -33,6 +33,10 @@ db.init_app(app)
 bcrypt.init_app(app)
 login_manager.init_app(app)
 
+# Ensure Database Tables Exist (Critical for production Gunicorn deployments)
+with app.app_context():
+    db.create_all()
+
 # Register Blueprints
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(routes_blueprint)
@@ -58,6 +62,4 @@ def index():
     return redirect(url_for('auth.login'))
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

@@ -29,18 +29,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 3. Password Toggle Setup ---
-    const togglePass = document.getElementById('togglePassword');
-    const passInput = document.getElementById('app_password');
-    if (togglePass && passInput) {
-        togglePass.addEventListener('click', () => {
-            const type = passInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passInput.setAttribute('type', type);
-            const icon = togglePass.querySelector('i');
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
+    // --- 3. Reusable Password Visibility Eye Toggle ---
+    const toggleButtons = document.querySelectorAll('.toggle-password-btn');
+    toggleButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            if (targetInput) {
+                const isPassword = targetInput.getAttribute('type') === 'password';
+                targetInput.setAttribute('type', isPassword ? 'text' : 'password');
+                
+                // Toggle eye icon class
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-eye', !isPassword);
+                    icon.classList.toggle('fa-eye-slash', isPassword);
+                }
+            }
         });
-    }
+    });
+
+    // --- 3.1 Convert UTC dates to local browser timezone ---
+    const dateElements = document.querySelectorAll('.format-date');
+    dateElements.forEach(el => {
+        const utcDateStr = el.getAttribute('data-utc');
+        if (utcDateStr) {
+            const dateObj = new Date(utcDateStr);
+            if (!isNaN(dateObj.getTime())) {
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const hours = String(dateObj.getHours()).padStart(2, '0');
+                const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+                el.textContent = `${year}-${month}-${day} ${hours}:${minutes}`;
+            }
+        }
+    });
 
     // --- 4. Quill Rich Text Editor Setup ---
     const editorEl = document.getElementById('editor');

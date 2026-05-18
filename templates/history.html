@@ -33,7 +33,7 @@
                     </td>
                     <td class="fw-semibold">{{ email.recipient }}</td>
                     <td>{{ email.subject or '(No Subject)' }}</td>
-                    <td class="small text-muted">{{ email.date_sent.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="small text-muted format-date" data-utc="{{ email.date_sent.isoformat() + 'Z' }}">{{ email.date_sent.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td>
                         {% if email.status == 'Sent' %}
                         <span class="badge badge-custom-sent px-3 py-2 fw-semibold">Sent</span>

@@ -71,3 +71,34 @@ def logout():
     
     flash('You have logged out successfully.', 'info')
     return redirect(url_for('auth.login'))
+
+@auth.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    current_pass = request.form.get('current_password')
+    new_pass = request.form.get('new_password')
+    confirm_pass = request.form.get('confirm_password')
+
+    if not current_pass or not new_pass or not confirm_pass:
+        flash('All password fields are required.', 'danger')
+        return redirect(url_for('routes.settings'))
+
+    if new_pass != confirm_pass:
+        flash('New passwords do not match.', 'danger')
+        return redirect(url_for('routes.settings'))
+
+    if len(new_pass) < 6:
+        flash('Password must be at least 6 characters long.', 'danger')
+        return redirect(url_for('routes.settings'))
+
+    user = User.query.get(current_user.id)
+    if not bcrypt.check_password_hash(user.password, current_pass):
+        flash('Incorrect current password.', 'danger')
+        return redirect(url_for('routes.settings'))
+
+    hashed_pw = bcrypt.generate_password_hash(new_pass).decode('utf-8')
+    user.password = hashed_pw
+    db.session.commit()
+
+    flash('Your account password has been updated successfully!', 'success')
+    return redirect(url_for('routes.settings'))

@@ -29,12 +29,20 @@ def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, su
                 with open(path, 'rb') as f:
                     msg.add_attachment(f.read(), maintype=maintype, subtype=subtype, filename=os.path.basename(path))
 
-        with smtplib.SMTP(smtp_server, smtp_port) as smtp:
-            smtp.ehlo()
-            smtp.starttls()
-            smtp.ehlo()
-            smtp.login(sender_email, password)
-            smtp.send_message(msg)
+        # Dynamic Connection Handler based on Port Number (SSL vs TLS)
+        # We also enforce strict socket timeout to prevent Gunicorn force-kills (500 errors)
+        port_num = int(smtp_port)
+        if port_num == 465:
+            with smtplib.SMTP_SSL(smtp_server, port_num, timeout=15) as smtp:
+                smtp.login(sender_email, password)
+                smtp.send_message(msg)
+        else:
+            with smtplib.SMTP(smtp_server, port_num, timeout=15) as smtp:
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+                smtp.login(sender_email, password)
+                smtp.send_message(msg)
         return True, "Success"
     except Exception as e:
         return False, str(e)
@@ -88,10 +96,14 @@ def compose():
                 os.remove(path)
 
         if success:
-            email = EmailHistory(user_id=current_user.id, recipient=receiver, cc=cc, bcc=bcc, subject=subject, body=body, status='Sent')
-            db.session.add(email)
-            db.session.commit()
-            flash('Email sent successfully!', 'success')
+            try:
+                email = EmailHistory(user_id=current_user.id, recipient=receiver, cc=cc, bcc=bcc, subject=subject, body=body, status='Sent')
+                db.session.add(email)
+                db.session.commit()
+                flash('Email sent successfully!', 'success')
+            except Exception as db_err:
+                db.session.rollback()
+                flash(f'Email sent successfully, but failed to log history: {str(db_err)}', 'warning', 'warning')
         else:
             flash(f'Failed to dispatch: {msg}', 'danger')
             

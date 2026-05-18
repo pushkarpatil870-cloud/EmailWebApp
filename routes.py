@@ -15,8 +15,10 @@ def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, su
     # Save original socket getaddrinfo to bypass IPv6 unreachability bugs on cloud hosts (Render)
     orig_getaddrinfo = socket.getaddrinfo
     try:
-        # Temporarily force IPv4 (AF_INET) resolution
-        socket.getaddrinfo = lambda host, port, family=0, *args, **kwargs: orig_getaddrinfo(host, port, socket.AF_INET, *args, **kwargs)
+        # Temporarily force IPv4 (AF_INET) resolution safely with strict standard signature
+        def forced_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+            return orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+        socket.getaddrinfo = forced_getaddrinfo
 
         msg = EmailMessage()
         msg['Subject'] = subject

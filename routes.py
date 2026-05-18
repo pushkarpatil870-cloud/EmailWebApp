@@ -85,7 +85,7 @@ def compose():
             if draft:
                 draft_attachments = json.loads(draft.attachments) if draft.attachments else []
                 return render_template('compose.html', draft=draft, draft_attachments=draft_attachments)
-        return render_template('compose.html')
+        return render_template('compose.html', draft=None, draft_attachments=[])
         
     # POST Request
     if request.method == 'POST':

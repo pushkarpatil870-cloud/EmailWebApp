@@ -39,11 +39,11 @@ def send_email_func(smtp_server, smtp_port, sender_email, password, receiver, su
         # We also enforce strict socket timeout to prevent Gunicorn force-kills (500 errors)
         port_num = int(smtp_port)
         if port_num == 465:
-            with smtplib.SMTP_SSL(smtp_server, port_num, timeout=15) as smtp:
+            with smtplib.SMTP_SSL(smtp_server, port_num, timeout=25) as smtp:
                 smtp.login(sender_email, password)
                 smtp.send_message(msg)
         else:
-            with smtplib.SMTP(smtp_server, port_num, timeout=15) as smtp:
+            with smtplib.SMTP(smtp_server, port_num, timeout=25) as smtp:
                 smtp.ehlo()
                 smtp.starttls()
                 smtp.ehlo()
